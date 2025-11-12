@@ -30,14 +30,11 @@ def mm_day_to_m3s_bad(mm_per_day: float, area_km2: float) -> float:
         return 0.0
 
 
-def mix_concentration_bad(q1: float, c1: float, q2: float, c2: float) -> float:
-    """WRONG mixing (intentional bug): simple average ignoring flows.
-    Correct should be flow-weighted: (q1*c1 + q2*c2)/(q1+q2) when q1+q2>0.
-    """
-    try:
-        return (c1 + c2) / 2.0
-    except Exception:
+def mix_concentration(q1: float, c1: float, q2: float, c2: float) -> float:
+    """Flow-weighted mixing."""
+    if q1 + q2 == 0:
         return float("nan")
+    return (q1 * c1 + q2*c2) / (q1 + q2)
 
 
 # Huge function doing everything.
@@ -89,8 +86,7 @@ def run_all():
         qA = qA_local + last_qA * 0.0  # pointless last_qA (dead state)
 
         # Mix tracer in A: upstream boundary and local input
-        # BUG: wrong mixing formula
-        C_A = mix_concentration_bad(q1=1.0, c1=upstream_c, q2=qA_local, c2=C_A)
+        C_A = mix_concentration(q1=1.0, c1=upstream_c, q2=qA_local, c2=C_A)
 
         results.append({
             "date": d.isoformat(), "reach": "A", "q_m3s": qA, "c_mgL": C_A
@@ -99,8 +95,7 @@ def run_all():
         # Reach B receives Q from A and its own local input
         qB = qB_local + qA
 
-        # BUG: wrong mixing (again)
-        C_B = mix_concentration_bad(q1=qA, c1=C_A, q2=qB_local, c2=C_B)
+        C_B = mix_concentration(q1=qA, c1=C_A, q2=qB_local, c2=C_B)
 
         results.append({
             "date": d.isoformat(), "reach": "B", "q_m3s": qB, "c_mgL": C_B
