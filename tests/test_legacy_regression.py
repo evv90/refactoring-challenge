@@ -3,8 +3,7 @@
 import filecmp
 from pathlib import Path
 
-from waqupy.__main__ import write_output_csv
-from waqupy.utils import read_csv_as_dicts
+from waqupy.data_types import Forcing, Reaches, read_table_from_csv
 from waqupy.water_model import run_all
 
 TEST_DIR_PATH = Path(__file__).parent
@@ -12,11 +11,10 @@ TEST_DIR_PATH = Path(__file__).parent
 
 def test_legacy_data(tmp_path: Path) -> None:
     """Test if running on originally provided data returns expected results."""
-
-    forcing_list = read_csv_as_dicts(TEST_DIR_PATH / "input_data" / "forcing.csv")
-    reaches_list = read_csv_as_dicts(TEST_DIR_PATH / "input_data" / "reaches.csv")
-    rows = run_all(forcing_list, reaches_list)
-    write_output_csv(tmp_path / "legacy_results.csv", rows)
+    forcing = read_table_from_csv(TEST_DIR_PATH / "input_data" / "forcing.csv", Forcing)
+    reaches = read_table_from_csv(TEST_DIR_PATH / "input_data" / "reaches.csv", Reaches)
+    discharge = run_all(forcing, reaches)
+    discharge.to_csv(tmp_path / "legacy_results.csv")
 
     # TODO: for now we test the resulting files against each other.
     # After refactoring, we should just check the result objects directly.
