@@ -24,7 +24,14 @@ target-version = "py314"
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D203", "D212", "COM812"]  # Rules conflict with ruff format
+ignore = [
+    "D203", "D212", "COM812",  # Rules conflict with ruff format
+    "S101"  # Allow use of assert in tests
+]
 
 [tool.ruff.format]
 quote-style = "double"
+
+[[tool.mypy.overrides]]
+module = "waqupy.*"
+ignore_missing_imports = true
