@@ -1,7 +1,5 @@
 """Tests for legacy bugs in waqupy.water_model module."""
 
-from __future__ import annotations
-
 import math
 
 from waqupy import water_model

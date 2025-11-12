@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import math
 from typing import Any, Dict, List
 
 from .config import CONFIG
@@ -33,10 +32,10 @@ def mix_concentration(q1: float, c1: float, q2: float, c2: float) -> float:
 # Huge function doing everything.
 # noqa: C901 (complexity) — this is legacy code on purpose
 
-def run_all():
-    beta = CONFIG.get("beta", 0.9)
-    fpath = CONFIG.get("paths", {}).get("forcing") or "data/forcing.csv"
-    rpath = CONFIG.get("paths", {}).get("reaches") or "data/reaches.csv"
+def run_all(config):
+    beta = config.get("beta", 0.9)
+    fpath = config.get("paths", {}).get("forcing") or "data/forcing.csv"
+    rpath = config.get("paths", {}).get("reaches") or "data/reaches.csv"
 
     forcing = read_csv_as_dicts(fpath)
     reaches = read_csv_as_dicts(rpath)
@@ -112,13 +111,13 @@ def write_output_csv(path: str) -> None:
             w.writerow(r)
 
 
-def main():
+def main(config):
     # Hard-coded default path — smell
-    out = CONFIG.get("paths", {}).get("output", "legacy_results.csv")
-    rows = run_all()
+    out = config.get("paths", {}).get("output", "legacy_results.csv")
+    rows = run_all(config)
     write_output_csv(out)
     print(f"Wrote {len(rows)} rows to {out}")
 
 
 if __name__ == "__main__":
-    main()
+    main(CONFIG)
