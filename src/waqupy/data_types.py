@@ -126,7 +126,7 @@ class Table[T: TableRow]:
 
 def read_table_from_csv(path: Path, table_type: type[TableRow]) -> Table:
     """Create a Table from a CSV file."""
-    table = Table[table_type]()
+    table = Table[table_type]()  # type: ignore[valid-type]
     with path.open("r", newline="", encoding="utf-8") as f:
         r = csv.DictReader(f)
         for row_dict in r:
