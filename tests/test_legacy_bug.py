@@ -6,7 +6,7 @@ from __future__ import annotations
 import math
 
 # AI-ASSIST: Example marker to illustrate how to annotate AI-influenced code or tests.
-from legacy_code import water_model as legacy
+from waqupy import water_model as legacy
 
 
 def test_tracer_mixing_should_be_flow_weighted():
