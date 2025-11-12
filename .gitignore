@@ -1,0 +1,10 @@
+# Python cache
+**/__pycache__/
+
+# Linters, formatters, testing
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environment
+.venv/
