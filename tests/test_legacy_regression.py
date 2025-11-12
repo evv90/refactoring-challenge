@@ -1,22 +1,26 @@
 """Tests for checking if code behavior is the same as legacy code."""
 
-import filecmp
+import math
 from pathlib import Path
 
-from waqupy.data_types import Forcing, Reaches, read_table_from_csv
+from waqupy.data_types import Discharge, Forcing, Reaches, read_table_from_csv
 from waqupy.water_model import run_all
 
 TEST_DIR_PATH = Path(__file__).parent
 
 
-def test_legacy_data(tmp_path: Path) -> None:
+def test_legacy_data() -> None:
     """Test if running on originally provided data returns expected results."""
     forcing = read_table_from_csv(TEST_DIR_PATH / "input_data" / "forcing.csv", Forcing)
     reaches = read_table_from_csv(TEST_DIR_PATH / "input_data" / "reaches.csv", Reaches)
-    discharge = run_all(forcing, reaches)
-    discharge.to_csv(tmp_path / "legacy_results.csv")
+    result = run_all(forcing, reaches)
 
-    # TODO: for now we test the resulting files against each other.
-    # After refactoring, we should just check the result objects directly.
     ref_path = TEST_DIR_PATH / "references" / "legacy_results.csv"
-    assert filecmp.cmp(tmp_path / "legacy_results.csv", ref_path)
+    ref = read_table_from_csv(ref_path, Discharge)
+
+    assert len(result.rows) == len(ref.rows)
+    for r1, r2 in zip(result.rows, ref.rows, strict=True):
+        if math.isnan(r2.c_mgL):
+            assert math.isnan(r1.c_mgL)
+        else:
+            assert r1 == r2
