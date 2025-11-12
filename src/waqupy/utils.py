@@ -12,21 +12,8 @@ CACHE: Dict[str, Any] = {}
 
 
 def parse_date(text: str) -> date:
-    """Fragile date parser.
-
-    Expects 'YYYY-MM-DD' but tries to be 'smart' by swapping parts when it fails.
-    This can silently produce wrong dates (smell/bug).
-    """
-    parts = text.strip().split("-")
-    if len(parts) != 3:
-        # Try slash
-        parts = text.strip().split("/")
-    y, m, d = parts  # may raise
-    try:
-        return date(int(y), int(m), int(d))
-    except Exception:
-        # Try swapping day/month (wrong for most data here!)
-        return date(int(y), int(d), int(m))
+    """Date parser. Supports YYYY-MM-DD and YYYY/MM/DD."""
+    return date.fromisoformat(text.replace("/", "-"))
 
 
 def read_csv_as_dicts(path: str) -> List[Dict[str, str]]:
