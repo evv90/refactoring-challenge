@@ -35,8 +35,8 @@ def field_names(table_row: TableRow) -> list[str]:
 
 
 @dataclass
-class Forcing(TableRow):
-    """Data class for a row in a discharge table."""
+class ForcingRow(TableRow):
+    """Data class for a row in a forcing table."""
 
     date: date
     precip_mm: float
@@ -55,7 +55,7 @@ class Forcing(TableRow):
 
 
 @dataclass
-class Reaches(TableRow):
+class ReachRow(TableRow):
     """Data class for a row in a reaches table."""
 
     reach_id: str
@@ -64,7 +64,7 @@ class Reaches(TableRow):
 
     @classmethod
     def from_str_dict(cls, data: dict[str, str]) -> Self:
-        """Create a Reaches row from a dictionary of strings."""
+        """Create a Reach row from a dictionary of strings."""
         return cls(
             reach_id=data["reach_id"],
             area_km2=float(data["area_km2"]),
@@ -73,7 +73,7 @@ class Reaches(TableRow):
 
 
 @dataclass
-class Discharge(TableRow):
+class ResultRow(TableRow):
     """Data class for a row in a discharge table."""
 
     date: date
@@ -83,7 +83,7 @@ class Discharge(TableRow):
 
     @classmethod
     def from_str_dict(cls, data: dict[str, str]) -> Self:
-        """Create a Discharge row from a dictionary of strings."""
+        """Create a Result row from a dictionary of strings."""
         return cls(
             date=parse_date(data["date"]),
             reach=data["reach"],

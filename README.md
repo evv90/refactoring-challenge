@@ -11,11 +11,14 @@ You inherited a small legacy script that calculates a daily water balance and a 
 
 Toy system (two reaches)
 
+```
   [Catchment] --runoff--> [Reach A] --flow--> [Reach B] --outflow--> (downstream)
                           ^ tracer input A      ^ tracer input B
+```
 
 ASCII diagram
 
+```
 +----------------------+        Q_A         +----------------------+
 |   Catchment (P, ET)  |  --------------->  |      Reach A         |
 |  area A_km2          |                    |  storage, C_A        |
@@ -28,6 +31,7 @@ ASCII diagram
                                          |      Reach B         |
                                          |  storage, C_B        |
                                          +----------------------+
+```
 
 Where:
 - P = precipitation (mm/day)

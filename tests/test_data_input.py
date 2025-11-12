@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from waqupy.data_types import Forcing, parse_date, read_table_from_csv
+from waqupy.data_types import ForcingRow, parse_date, read_table_from_csv
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -43,7 +43,7 @@ def test_read_forcing_csv(tmp_path: Path) -> None:
     )
     csv_path = tmp_path / "forcing.csv"
     csv_path.write_text(csv_content, encoding="utf-8")
-    forcing = read_table_from_csv(csv_path, Forcing)
+    forcing = read_table_from_csv(csv_path, ForcingRow)
     assert len(forcing.rows) == 2
     row1 = forcing.rows[0]
     assert row1.date.year == 2024

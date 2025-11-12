@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-from waqupy.data_types import Forcing, Reaches, read_table_from_csv
+from waqupy.data_types import ForcingRow, ReachRow, read_table_from_csv
 from waqupy.water_model import run_all
 
 
@@ -17,8 +17,8 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    forcing = read_table_from_csv(args.forcing, Forcing)
-    reaches = read_table_from_csv(args.reaches, Reaches)
+    forcing = read_table_from_csv(args.forcing, ForcingRow)
+    reaches = read_table_from_csv(args.reaches, ReachRow)
     discharge = run_all(forcing, reaches)
     discharge.to_csv(args.out)
 
