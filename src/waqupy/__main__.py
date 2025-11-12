@@ -11,21 +11,16 @@ from waqupy.water_model import run_all
 def main() -> None:
     """Command-line interface function for waqupy."""
     parser = argparse.ArgumentParser(description="Waqupy water quality model")
-    parser.add_argument("forcing", type=Path, help="Path to forcing CSV file")
-    parser.add_argument("reaches", type=Path, help="Path to reaches CSV file")
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=Path("waqupy_output.csv"),
-        help="Path to output CSV file",
-    )
+    parser.add_argument("--forcing", type=Path, help="Path to forcing CSV file")
+    parser.add_argument("--reaches", type=Path, help="Path to reaches CSV file")
+    parser.add_argument("--out", type=Path, help="Path to output CSV file")
 
     args = parser.parse_args()
 
     forcing = read_table_from_csv(args.forcing, Forcing)
     reaches = read_table_from_csv(args.reaches, Reaches)
     discharge = run_all(forcing, reaches)
-    discharge.to_csv(args.output)
+    discharge.to_csv(args.out)
 
 
 if __name__ == "__main__":
