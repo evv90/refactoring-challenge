@@ -1,7 +1,5 @@
 """Main run loop for wqaupy water quality model."""
 
-from dataclasses import asdict
-
 from waqupy.data_types import Discharge, Forcing, Reaches, Table
 
 
@@ -19,63 +17,74 @@ def mix_concentration(q1: float, c1: float, q2: float, c2: float) -> float:
     return (q1 * c1 + q2 * c2) / (q1 + q2)
 
 
-def run_all(
-    forcing_table: Table[Forcing], reaches_table: Table[Reaches]
-) -> Table[Discharge]:
-    """Run the water quality model for all reaches."""
-    reaches = list(reaches_table._rows)
-    forcing = list(forcing_table._rows)
+def run_step(
+    forcing: Forcing,
+    reaches_a: Reaches,
+    reaches_b: Reaches,
+    concentration_a: float,
+    concentration_b: float,
+) -> tuple[Discharge, Discharge]:
+    """Run a single time step of the water quality model."""
+    upstream_c = forcing.tracer_upstream_mgL
 
-    if len(reaches) < 2:
-        msg = "need at least 2 reaches A and B"
+    runoff_mm = max(forcing.precip_mm - forcing.et_mm, 0.0)
+
+    discharge_a = mm_day_to_m3s(runoff_mm, reaches_a.area_km2)
+    discharge_b = mm_day_to_m3s(runoff_mm, reaches_b.area_km2)
+
+    mixed_concentration_a = mix_concentration(
+        q1=1.0, c1=upstream_c, q2=discharge_a, c2=concentration_a
+    )
+
+    result_a = Discharge(
+        date=forcing.date,
+        reach=reaches_a.reach_id,
+        q_m3s=discharge_a,
+        c_mgL=mixed_concentration_a,
+    )
+
+    mixed_concentration_b = mix_concentration(
+        q1=discharge_a,
+        c1=mixed_concentration_a,
+        q2=discharge_b,
+        c2=concentration_b,
+    )
+
+    discharge_total = discharge_a + discharge_b
+    result_b = Discharge(
+        date=forcing.date,
+        reach=reaches_b.reach_id,
+        q_m3s=discharge_total,
+        c_mgL=mixed_concentration_b,
+    )
+    return result_a, result_b
+
+
+def run_all(forcing: Table[Forcing], reaches: Table[Reaches]) -> Table[Discharge]:
+    """Run the water quality model for all reaches."""
+    if len(reaches.rows) != 2:
+        msg = "This model needs exactly 2 reaches as input."
         raise RuntimeError(msg)
 
-    # Assume reaches sorted A then B
-    A = asdict(reaches[0])
-    B = asdict(reaches[1])
+    reaches_a = reaches.rows[0]
+    reaches_b = reaches.rows[1]
 
-    A_area = float(A.get("area_km2", "0"))
-    B_area = float(B.get("area_km2", "0"))
-
-    C_A = float(A.get("tracer_init_mgL", "0"))
-    C_B = float(B.get("tracer_init_mgL", "0"))
+    concentration_a = reaches_a.tracer_init_mgL
+    concentration_b = reaches_b.tracer_init_mgL
 
     results = Table[Discharge]()
 
-    for row_forcing in forcing:
-        row = asdict(row_forcing)
-        d = row.get("date")
-        P = float(row.get("precip_mm", "0"))
-        ET = float(row.get("et_mm", "0"))
-        upstream_c = float(row.get("tracer_upstream_mgL", "0"))
-
-        runoff_mm_A = max(P - ET, 0.0)
-        runoff_mm_B = max(P - ET, 0.0)
-
-        discharge_A = mm_day_to_m3s(runoff_mm_A, A_area)
-        discharge_B = mm_day_to_m3s(runoff_mm_B, B_area)
-
-        C_A = mix_concentration(q1=1.0, c1=upstream_c, q2=discharge_A, c2=C_A)
-
-        results.add_row(
-            Discharge(
-                date=d,
-                reach="A",
-                q_m3s=discharge_A,
-                c_mgL=C_A,
-            )
+    for f in forcing.rows:
+        discharge_a, discharge_b = run_step(
+            f,
+            reaches_a,
+            reaches_b,
+            concentration_a,
+            concentration_b,
         )
-
-        C_B = mix_concentration(q1=discharge_A, c1=C_A, q2=discharge_B, c2=C_B)
-
-        discharge_total = discharge_A + discharge_B
-        results.add_row(
-            Discharge(
-                date=d,
-                reach="B",
-                q_m3s=discharge_total,
-                c_mgL=C_B,
-            )
-        )
+        concentration_a = discharge_a.c_mgL
+        concentration_b = discharge_b.c_mgL
+        results.add_row(discharge_a)
+        results.add_row(discharge_b)
 
     return results

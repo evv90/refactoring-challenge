@@ -1,4 +1,3 @@
-# ruff: noqa: PLR2004 - allow "magic numbers" in tests
 """Tests for waqupy.utils module."""
 
 import textwrap
