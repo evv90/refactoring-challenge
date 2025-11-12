@@ -3,18 +3,18 @@ import filecmp
 from pathlib import Path
 
 from waqupy import water_model
+from waqupy.config import Config
 
 TEST_DIR_PATH = Path(__file__).parent
 
 
 def test_legacy_data(tmp_path: Path) -> None:
     """Test if running on originally provided data returns expected results."""
-    config = water_model.CONFIG.copy()
-    config["paths"] = {
-        "forcing": TEST_DIR_PATH / "input_data" / "forcing.csv",
-        "reaches": TEST_DIR_PATH / "input_data" / "reaches.csv",
-        "output": tmp_path / "legacy_results.csv",
-    }
+    config = Config(
+        forcing_path=TEST_DIR_PATH / "input_data" / "forcing.csv",
+        reaches_path=TEST_DIR_PATH / "input_data" / "reaches.csv",
+        output_path=tmp_path / "legacy_results.csv"
+    )
     water_model.main(config)
 
     # TODO: for now we test the resulting files against each other.

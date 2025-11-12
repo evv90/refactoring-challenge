@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from .config import CONFIG
+from waqupy.config import Config
 from .utils import parse_date, read_csv_as_dicts
 
 # Mutable global state — smell
@@ -33,9 +33,9 @@ def mix_concentration(q1: float, c1: float, q2: float, c2: float) -> float:
 # noqa: C901 (complexity) — this is legacy code on purpose
 
 def run_all(config):
-    beta = config.get("beta", 0.9)
-    fpath = config.get("paths", {}).get("forcing") or "data/forcing.csv"
-    rpath = config.get("paths", {}).get("reaches") or "data/reaches.csv"
+    beta = config.beta
+    fpath = config.forcing_path
+    rpath = config.reaches_path
 
     forcing = read_csv_as_dicts(fpath)
     reaches = read_csv_as_dicts(rpath)
@@ -111,13 +111,9 @@ def write_output_csv(path: str) -> None:
             w.writerow(r)
 
 
-def main(config):
+def main(config: Config):
     # Hard-coded default path — smell
-    out = config.get("paths", {}).get("output", "legacy_results.csv")
+    out = config.output_path
     rows = run_all(config)
-    write_output_csv(out)
+    write_output_csv(out.as_posix())
     print(f"Wrote {len(rows)} rows to {out}")
-
-
-if __name__ == "__main__":
-    main(CONFIG)

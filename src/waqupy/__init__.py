@@ -1,1 +1,1 @@
-# Legacy package (intentionally messy). Do not use as-is for production.
+"""Initialization for waqupy: Water Quality package for Python."""
