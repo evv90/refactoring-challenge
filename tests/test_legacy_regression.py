@@ -1,4 +1,5 @@
 """Tests for checking if code behavior is the same as legacy code."""
+
 import filecmp
 from pathlib import Path
 
@@ -13,7 +14,7 @@ def test_legacy_data(tmp_path: Path) -> None:
     config = Config(
         forcing_path=TEST_DIR_PATH / "input_data" / "forcing.csv",
         reaches_path=TEST_DIR_PATH / "input_data" / "reaches.csv",
-        output_path=tmp_path / "legacy_results.csv"
+        output_path=tmp_path / "legacy_results.csv",
     )
     water_model.main(config)
 
